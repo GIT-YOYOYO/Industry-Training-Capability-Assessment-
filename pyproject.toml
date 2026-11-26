@@ -73,3 +73,10 @@ markers = [
   "acceptance: 验收测试（规则与契约）",
   "e2e: 端到端冒烟",
 ]
+
+[tool.coverage.run]
+source = ["vtrain"]
+
+[tool.coverage.report]
+fail_under = 85
+skip_empty = true

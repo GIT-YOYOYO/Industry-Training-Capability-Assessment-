@@ -9,10 +9,10 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-COVERAGE_MIN = 80
 PATHS: list[str] = ["src", "tests", "scripts"]
 
 
@@ -25,12 +25,18 @@ def _tool(name: str) -> str:
     return name
 
 
+def _coverage_floor() -> int:
+    """覆盖率门槛只在 pyproject.toml 写一处，这里读它。"""
+    data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    return int(data["tool"]["coverage"]["report"]["fail_under"])
+
+
 STEPS: list[tuple[str, list[str]]] = [
     ("ruff lint", ["ruff", "check", *PATHS]),
     ("ruff format", ["ruff", "format", "--check", *PATHS]),
     ("mypy", ["mypy", *PATHS]),
     ("import-linter", [_tool("lint-imports"), "--no-logo"]),
-    ("pytest", ["pytest", "-q", "--cov=vtrain", f"--cov-fail-under={COVERAGE_MIN}"]),
+    ("pytest", ["pytest", "-q", "--cov=vtrain", f"--cov-fail-under={_coverage_floor()}"]),
 ]
 
 
