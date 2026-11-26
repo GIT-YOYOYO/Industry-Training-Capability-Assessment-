@@ -10,7 +10,7 @@
 - 一致性：特征口径在 `configs/features.yaml`，代码只从 `spec.feature_columns` 取列。
 
 ### M2 仓库骨架与环境（5）
-- 证据：`pyproject.toml`、`uv.lock`、`.python-version`（3.12）、src 布局、`.gitignore`、`README.md`。
+- 证据：`pyproject.toml`、`uv.lock`、`.python-version`（3.13.5）、src 布局、`.gitignore`、`README.md`。
 - 验证：`uv sync && uv run python -c "import vtrain; print(vtrain.__version__)"`；预期 `0.1.0`。
 
 ### M3 配置与可复现（5）

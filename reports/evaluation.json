@@ -375,7 +375,7 @@
     "manifest_train": "f8020aa5d3715be219862db4e946a5363c31686ccf265c79fe07458f076ea397"
   },
   "git": {
-    "git_sha": null,
-    "git_dirty": null
+    "git_sha": "0112e0ba92de729e1f80473ac84441ab868e7fb0",
+    "git_dirty": true
   }
 }
