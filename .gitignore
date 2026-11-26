@@ -1,9 +1,10 @@
-# 数据与模型产物：不进 Git
-data/raw/
-data/processed/
-data/interim/
-models/
-reports/figures/
+# 数据与模型产物：不进 Git（根锚定，避免误伤 src/vtrain/models 等源码目录）
+/data/raw/
+/data/processed/
+/data/interim/
+/models/
+/reports/figures/
+/runs/
 *.xlsx
 *.parquet
 *.pkl
@@ -20,7 +21,6 @@ __pycache__/
 htmlcov/
 
 # 追踪与临时
-runs/
 *.log
 
 # 系统
