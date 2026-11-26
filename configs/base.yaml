@@ -1,0 +1,72 @@
+# ============================================================================
+# 全部口径数字的唯一来源。代码里不得出现魔法数字（路径、种子、阈值、比例、超参）。
+# 加载时由 pydantic 严格校验（extra="forbid"）：拼错的键会当场报错。
+# ============================================================================
+project: vocational-training-ability
+seed: 20240117
+
+data:
+  raw_path: data/raw/kaggledata225.xlsx
+  # 原始文件 sha256（README 与 manifest 都对它；换数据必须改这里并说明）
+  raw_sha256: ce96c556f88daea9d3157b89eadfee44996adc712a55f527e98e4747e02e4129
+  sheet: Sheet1
+  processed_dir: data/processed
+  # 按培训中心（schoolid）分组切分：test 20% 的中心，val 15% 的中心，其余 train
+  test_size: 0.20
+  val_size: 0.15
+  group_col: schoolid
+  # 标签：训练集 y 的 25% 分位 => 低于等于阈值为“不达标”（正类）
+  label_source_col: y
+  label_quantile: 0.25
+  positive_label: low_ability
+  # 这些列全缺的行在清洗阶段剔除（只影响 10 行）
+  dropna_cols: [y, y1, y2, y3, y4, y5]
+
+features:
+  spec_path: configs/features.yaml
+
+models:
+  # 候选模型；champion 由验证集主指标决定
+  candidates: [logreg, lightgbm]
+  selection: best_by_val_pr_auc
+  logreg:
+    C: 1.0
+    max_iter: 2000
+    class_weight: balanced
+  lightgbm:
+    n_estimators: 400
+    learning_rate: 0.05
+    num_leaves: 31
+    min_child_samples: 50
+    subsample: 0.9
+    subsample_freq: 1
+    colsample_bytree: 0.9
+    reg_lambda: 1.0
+    n_jobs: 4
+
+decision:
+  # 名额制：取风险分数最高的 k_fraction 进入强化辅导班
+  strategy: top_k
+  k_fraction: 0.10
+
+evaluation:
+  main_metric: pr_auc
+  bootstrap:
+    n: 1000
+    seed: 20240117
+  slices:
+    baseline_bins: 3            # 按基线综合分 x 的三分位分组（x 只用于评估切片，不进模型）
+    min_group_size: 100
+    # 切片门禁指标：PR-AUC 下界是组内正例率，跨组不可比；用对正例率不敏感的 ROC-AUC
+    gate_metric: roc_auc
+  acceptance:
+    max_slice_gap: 0.20         # 切片间 ROC-AUC 差距超过它 => 训练门禁报错
+    min_pr_auc_over_baseline: 0.05  # 主指标须比基线至少高这么多
+
+tracking:
+  backend: jsonl
+  dir: runs
+
+paths:
+  models_dir: models
+  reports_dir: reports
