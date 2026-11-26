@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -14,17 +15,30 @@ ROOT = Path(__file__).resolve().parents[1]
 COVERAGE_MIN = 80
 PATHS: list[str] = ["src", "tests", "scripts"]
 
+
+def _tool(name: str) -> str:
+    """找到虚拟环境里的可执行文件（lint-imports 没有 python -m 入口）。"""
+    bindir = Path(sys.executable).parent
+    for candidate in (bindir / name, bindir / f"{name}.exe"):
+        if candidate.exists():
+            return str(candidate)
+    return name
+
+
 STEPS: list[tuple[str, list[str]]] = [
     ("ruff lint", ["ruff", "check", *PATHS]),
     ("ruff format", ["ruff", "format", "--check", *PATHS]),
     ("mypy", ["mypy", *PATHS]),
+    ("import-linter", [_tool("lint-imports"), "--no-logo"]),
     ("pytest", ["pytest", "-q", "--cov=vtrain", f"--cov-fail-under={COVERAGE_MIN}"]),
 ]
 
 
 def run_step(name: str, cmd: list[str]) -> bool:
     print(f"\n=== {name} ===", flush=True)
-    return subprocess.run(cmd, cwd=ROOT, check=False).returncode == 0
+    # 子进程统一 UTF-8：中文 Windows 默认 GBK，import-linter 读含中文的源码会解码失败
+    env = {**os.environ, "PYTHONUTF8": "1"}
+    return subprocess.run(cmd, cwd=ROOT, env=env, check=False).returncode == 0
 
 
 def main() -> int:

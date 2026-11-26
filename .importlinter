@@ -1,0 +1,45 @@
+# import-linter 分层契约（单包内模块方向）
+# 保持 ASCII-only：import-linter 用系统 locale 读配置，中文 Windows 是 GBK。
+[importlinter]
+root_packages =
+    vtrain
+
+[importlinter:contract:config-is-leaf]
+name = config is a leaf (no other vtrain deps)
+type = forbidden
+source_modules =
+    vtrain.config
+forbidden_modules =
+    vtrain.data
+    vtrain.features
+    vtrain.models
+    vtrain.evaluation
+    vtrain.explain
+    vtrain.bundle
+    vtrain.tracking
+    vtrain.predict
+    vtrain.cli
+
+[importlinter:contract:low-layers-no-high]
+name = low layers do not import models/predict/cli
+type = forbidden
+source_modules =
+    vtrain.config
+    vtrain.data
+    vtrain.features
+    vtrain.evaluation
+    vtrain.explain
+    vtrain.bundle
+    vtrain.tracking
+forbidden_modules =
+    vtrain.models
+    vtrain.predict
+    vtrain.cli
+
+[importlinter:contract:predict-not-models]
+name = predict does not import models
+type = forbidden
+source_modules =
+    vtrain.predict
+forbidden_modules =
+    vtrain.models
