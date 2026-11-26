@@ -49,7 +49,7 @@
 - 证据：`AGENTS.md`（规矩，人工撰写）；`docs/ai-log.md`（5 段关键提示词 + 3 个“AI 写错、我发现”的实例）。
 - 验证：`sed -n '1,40p' docs/ai-log.md`。
 
-## 扩展项（认领 35 分，上限 40 不计满）
+## 扩展项（列出 50 分，按规则封顶计 40）
 
 ### X1 多模型对比（10）
 - 第一档：同口径同切分下 4 个模型（dummy、rule_baseline、logreg、lightgbm）对比表 → `reports/evaluation.md`。
@@ -72,6 +72,20 @@
 - 第二档：再记 git sha、是否有未提交改动、配置指纹、数据指纹；追踪经协议适配，测试用内存后端。
 - 证据：`src/vtrain/tracking/tracker.py`；验证：`uv run pytest tests/unit/test_tracking.py -q`。
 
+### X15 严格质量门（5）
+- mypy strict、import-linter 分层契约、覆盖率门槛三者都进质量门；覆盖率门槛只写在 `pyproject.toml`。
+- 证据：`.importlinter`（3 条 forbidden 契约）、`scripts/ci.py`（5 道门）、`pyproject.toml` 的 `tool.coverage.report.fail_under`。
+- 验证：`uv run python scripts/ci.py`；预期 5 道门全绿，`import-linter` 显示 `3 kept, 0 broken`。
+
+### X16 守门测试（5）
+- 用测试守住规则本身：质量门命令与顺序（`tests/architecture/test_quality_gate.py`）、目录布局与 `py.typed` 与无占位（`tests/architecture/test_layout.py`）、门槛与特征契约（`tests/acceptance/test_gates.py`、`test_feature_contract.py`）。
+- 验证：`uv run pytest tests/architecture tests/acceptance -q`；预期全绿；改门槛/混入目标列会变红（见下方破坏实验）。
+
+### X20 三段八步（第一档，5）
+- 3 个步骤先提交规格卡与验收测试（打 `spec-guard-*`），看它红，再实现（`step-guard-*`）。
+- 证据：`git tag` 有 `spec-guard-1/2/3` 与 `step-guard-1/2/3`；每个 spec 提交的验收测试在实现前跑出红。
+- 验证：`git log --oneline --decorate | grep -E "spec-guard|step-guard"` 能看到 spec 在 step 之前。
+
 ## 破坏实验记录（M8 要求）
 
 两个实验都用 `_bak` 临时备份、`try/finally` 恢复，恢复后 acceptance 全绿（exit 0，9 passed）。
@@ -82,6 +96,9 @@
 | EXP2 | 往 `features.yaml` 的 numeric 加 `y`（目标泄漏） | `test_feature_contract::test_forbidden_not_in_features` 与 `test_target_and_components_excluded` **FAILED**，exit 1 |
 
 结论：门槛被悄悄放宽、目标列混入特征，质量门都会变红。
+
+另：`spec-guard-1/2/3` 三个验收测试在实现前分别跑出红（缺 `.importlinter`、覆盖率非单一来源、
+缺 `py.typed`），实现后转绿，`step-guard-*` 紧随其后——这是 X20 的“先红后绿”历史证据。
 
 ## 复用声明
 

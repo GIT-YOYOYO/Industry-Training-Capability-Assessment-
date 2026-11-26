@@ -26,13 +26,13 @@ uv sync                                       # 按 uv.lock 锁定安装依赖
 uv run vtrain prepare                         # 清洗 -> 分组切分 -> 标签 -> manifest
 uv run vtrain train                           # 训练/评估 -> reports/ 与 models/champion
 uv run vtrain predict --input samples.csv     # 推理：预测 + 决策 + 解释
-uv run python scripts/ci.py                   # 质量门：ruff + format + mypy + pytest(覆盖率>=80%)
+uv run python scripts/ci.py                   # 质量门：ruff + format + mypy + import-linter + pytest(覆盖率>=85%)
 ```
 
 预期输出：
 
 - `vtrain train` 末尾打印 `champion=logreg gate_passed=True`。
-- `scripts/ci.py` 末尾打印 `[ALL GREEN] 质量门通过`，覆盖率 >= 80%。
+- `scripts/ci.py` 末尾打印 `[ALL GREEN] 质量门通过`，覆盖率 >= 85%。
 - `reports/evaluation.md` 与 `reports/evaluation.json` 由代码生成，重跑内容一致（测试集按固定种子）。
 
 `data/processed/` 下的 `train/val/test.parquet` 与 `manifest.json` 由 `prepare` 生成；
@@ -58,8 +58,9 @@ uv run python scripts/ci.py                   # 质量门：ruff + format + mypy
 │   ├── tracking/            追踪协议 + JSONL/内存后端
 │   ├── predict.py           推理函数
 │   └── cli.py               prepare / train / predict / explain
-├── tests/{unit,acceptance,e2e}/
-├── scripts/ci.py            一条命令的质量门
+├── .importlinter            分层契约：config 为叶子，低层不依赖 models/predict/cli
+├── tests/{unit,acceptance,e2e,architecture}/
+├── scripts/ci.py            一条命令的质量门（5 道）
 ├── docs/{design.md,adr/,specs/,ai-log.md,self-assessment.md}
 ├── reports/                 评估报告（代码生成）
 ├── data/  models/  runs/    不进 Git
@@ -74,7 +75,11 @@ uv run python scripts/ci.py                   # 质量门：ruff + format + mypy
 - **特征**：只用 x1–x5；禁用 `x`（x1–x5 的确定性线性组合，冗余）、`y1–y5`/`y`（目标泄漏）、
   标识符、`schooltype`（公平性）。
 - **解释**：基准值 + 全部贡献 = 模型原始输出（对数几率），有测试守着。
-- **质量门**：主指标须超基线、切片差距须在容差内、解释须可加回；任一不过即报错。
+- **质量门**：5 道（ruff / format / mypy / import-linter / pytest），覆盖率门槛只写在 `pyproject.toml`；
+  训练门禁：主指标须超基线、切片差距须在容差内、解释须可加回，任一不过即报错。
+- **分层契约**：`.importlinter` 强制 config 为叶子、低层不依赖 models/predict/cli。
+- **规则本身有测试守着**：质量门命令与顺序、目录布局、`py.typed`、无占位、门槛不被放宽，
+  都在 `tests/architecture/` 与 `tests/acceptance/`；`spec-guard-* → step-guard-*` 是先红后绿的证据。
 
 ## 复用声明
 
