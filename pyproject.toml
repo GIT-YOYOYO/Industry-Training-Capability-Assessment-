@@ -75,6 +75,7 @@ markers = [
 ]
 
 [tool.coverage.run]
+branch = true
 source = ["vtrain"]
 
 [tool.coverage.report]

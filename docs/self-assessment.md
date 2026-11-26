@@ -74,8 +74,8 @@
 
 ### X15 严格质量门（5）
 - mypy strict、import-linter 分层契约、覆盖率门槛三者都进质量门；覆盖率门槛只写在 `pyproject.toml`。
-- 证据：`.importlinter`（3 条 forbidden 契约）、`scripts/ci.py`（5 道门）、`pyproject.toml` 的 `tool.coverage.report.fail_under`。
-- 验证：`uv run python scripts/ci.py`；预期 5 道门全绿，`import-linter` 显示 `3 kept, 0 broken`。
+- 证据：`.importlinter`（3 条 forbidden + 1 条 layers 契约，后者天然禁止循环）、`scripts/ci.py`（5 道门）、`pyproject.toml` 的 `tool.coverage.report.fail_under=85`（分支覆盖，实测 88.6%）。
+- 验证：`uv run python scripts/ci.py`；预期 5 道门全绿，`import-linter` 显示 `4 kept, 0 broken`。
 
 ### X16 守门测试（5）
 - 用测试守住规则本身：质量门命令与顺序（`tests/architecture/test_quality_gate.py`）、目录布局与 `py.typed` 与无占位（`tests/architecture/test_layout.py`）、门槛与特征契约（`tests/acceptance/test_gates.py`、`test_feature_contract.py`）。

@@ -43,3 +43,18 @@ source_modules =
     vtrain.predict
 forbidden_modules =
     vtrain.models
+
+[importlinter:contract:layers]
+name = layered architecture (no upward deps, hence no cycles)
+type = layers
+layers =
+    vtrain.cli
+    vtrain.predict
+    vtrain.models
+    vtrain.explain
+    vtrain.evaluation
+    vtrain.bundle
+    vtrain.features
+    vtrain.data
+    vtrain.tracking
+    vtrain.config
