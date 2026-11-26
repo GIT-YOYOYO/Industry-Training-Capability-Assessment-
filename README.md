@@ -18,7 +18,7 @@
 
 ## 环境与复现
 
-需要 Python 3.12 与 [uv](https://docs.astral.sh/uv/)。
+需要 Python 3.13 与 [uv](https://docs.astral.sh/uv/)。
 
 ```bash
 uv sync                                       # 按 uv.lock 锁定安装依赖

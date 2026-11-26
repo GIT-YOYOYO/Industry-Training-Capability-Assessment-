@@ -7,7 +7,7 @@ name = "vocational-training-ability"
 version = "0.1.0"
 description = "职业技术培训能力不达标风险筛选：可复现、可检查、可解释的二分类项目"
 readme = "README.md"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.13,<3.14"
 authors = [{ name = "学员" }]
 license = { text = "MIT" }
 dependencies = [
@@ -43,7 +43,7 @@ package = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py313"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
@@ -54,7 +54,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 "tests/**" = ["E501", "B011"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.13"
 strict = true
 files = ["src", "tests", "scripts"]
 warn_unused_ignores = true
