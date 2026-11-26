@@ -1,0 +1,28 @@
+# 数据与模型产物：不进 Git
+data/raw/
+data/processed/
+data/interim/
+models/
+reports/figures/
+*.xlsx
+*.parquet
+*.pkl
+*.joblib
+
+# 环境
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 追踪与临时
+runs/
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db
